@@ -27,12 +27,13 @@ install_package() {
 
 # Actualizar repositorios
 echo -e "${BLUE}Actualizando repositorios...${NC}"
+sudo xbps-install -Suy xbps
 sudo xbps-install -Suy
 echo -e "${GREEN}Repositorios actualizados${NC}"
 
 # Instalación de paquetes base
 echo -e "${BLUE}Instalando paquetes base...${NC}"
-BASE_PACKAGES="base-devel git curl wget xorg xorg-server xorg-apps x11-utils"
+BASE_PACKAGES="base-devel git curl wget xorg xorg-minimal xorg-fonts xinit libX11-devel libXft-devel libXinerama-devel"
 sudo xbps-install -Sy $BASE_PACKAGES
 
 # Instalación de paquetes solicitados
@@ -47,7 +48,7 @@ PACKAGES=(
     "feh"
     "lightdm"
     "lightdm-gtk-greeter"
-    "ttf-fira-code"
+    "font-firacode"   # Nombre correcto del paquete en Void Linux
     "tlp"       # Optimización de batería
     "acpi"      # Monitoreo de batería
     "xtools"    # Herramientas útiles para Void Linux
@@ -62,6 +63,12 @@ PACKAGES=(
     "pavucontrol" # Control de volumen gráfico
     "alsa-utils" # Utilidades de audio
     "xbacklight" # Control de brillo
+    "nitrogen"  # Gestor de fondos de pantalla (alternativa a feh)
+    "scrot"     # Para capturas de pantalla
+    "firefox"   # Navegador web
+    "gtk+3"     # Toolkit GTK para aplicaciones
+    "dbus"      # Necesario para muchas aplicaciones
+    "xdg-utils" # Utilidades básicas para aplicaciones X
 )
 
 echo -e "${BLUE}Instalando paquetes requeridos...${NC}"
@@ -628,22 +635,41 @@ if [ ! -f /usr/share/backgrounds/void.png ]; then
     sudo wget -O /usr/share/backgrounds/void.png https://raw.githubusercontent.com/void-linux/void-artwork/master/splash/void-live-splash.png
 fi
 
-# Habilitar lightdm y tlp
+# Habilitar servicios
 echo -e "${BLUE}Habilitando servicios...${NC}"
 sudo ln -sf /etc/sv/lightdm /var/service/
 sudo ln -sf /etc/sv/tlp /var/service/
 sudo ln -sf /etc/sv/dbus /var/service/
+sudo ln -sf /etc/sv/NetworkManager /var/service/
+
+# Verificar que los servicios están habilitados
+echo -e "${BLUE}Verificando servicios...${NC}"
+for service in lightdm tlp dbus NetworkManager; do
+    if [ -L /var/service/$service ]; then
+        echo -e "${GREEN}✓ Servicio $service habilitado${NC}"
+    else
+        echo -e "${RED}✗ Servicio $service no habilitado${NC}"
+    fi
+done
 
 # Instalar fuentes necesarias
 echo -e "${BLUE}Instalando fuentes adicionales...${NC}"
+sudo xbps-install -Sy font-firacode font-awesome5
+
+# También instalamos algunas fuentes adicionales manualmente
 mkdir -p ~/.fonts
 cd /tmp
-wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
-unzip -q FiraCode.zip -d ~/.fonts
-wget -q https://use.fontawesome.com/releases/v5.15.4/fontawesome-free-5.15.4-desktop.zip
-unzip -q fontawesome-free-5.15.4-desktop.zip
-cp fontawesome-free-5.15.4-desktop/otfs/*.otf ~/.fonts/
-rm -rf FiraCode.zip fontawesome-free-5.15.4-desktop.zip fontawesome-free-5.15.4-desktop
+echo -e "${YELLOW}Descargando fuentes Nerd Fonts...${NC}"
+wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/FiraCode.zip || \
+  wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
+
+if [ -f FiraCode.zip ]; then
+    unzip -q FiraCode.zip -d ~/.fonts
+    echo -e "${GREEN}✓ Nerd Fonts instaladas${NC}"
+else
+    echo -e "${RED}✗ Error al descargar Nerd Fonts${NC}"
+fi
+
 cd ~
 fc-cache -fv
 
@@ -702,11 +728,34 @@ if [ -f /usr/bin/neofetch ]; then
 fi
 EOF
 
+# Verificar que todo está instalado correctamente
+echo -e "${BLUE}Verificando la instalación...${NC}"
+echo -e "${YELLOW}Comprobando paquetes críticos para el entorno gráfico...${NC}"
+
+CRITICAL_PACKAGES="xorg-minimal bspwm sxhkd lightdm"
+MISSING_PACKAGES=""
+
+for package in $CRITICAL_PACKAGES; do
+    if ! xbps-query -l | grep -q "^ii $package"; then
+        MISSING_PACKAGES="$MISSING_PACKAGES $package"
+    fi
+done
+
+if [ -n "$MISSING_PACKAGES" ]; then
+    echo -e "${RED}ADVERTENCIA: Los siguientes paquetes críticos no están instalados:${NC}"
+    echo -e "${RED}$MISSING_PACKAGES${NC}"
+    echo -e "${YELLOW}Intentando reinstalar paquetes faltantes...${NC}"
+    sudo xbps-install -Sy $MISSING_PACKAGES
+else
+    echo -e "${GREEN}✓ Todos los paquetes críticos están instalados${NC}"
+fi
+
 echo -e "${GREEN}Instalación completada!${NC}"
 echo -e "${BLUE}==================================================${NC}"
 echo -e "${YELLOW}Para iniciar tu nuevo entorno:${NC}"
 echo -e "1. Reinicia tu sistema: ${GREEN}sudo reboot${NC}"
 echo -e "2. Inicia sesión a través de LightDM"
+echo -e "3. Si LightDM no inicia automáticamente, puedes iniciarlo con: ${GREEN}sudo sv start lightdm${NC}"
 echo -e "${BLUE}==================================================${NC}"
 echo -e "${YELLOW}Atajos de teclado principales:${NC}"
 echo -e "${GREEN}Super + Enter${NC}: Abrir terminal (Kitty)"
