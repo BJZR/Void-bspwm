@@ -30,8 +30,8 @@ ok "Sistema actualizado"
 # Paquetes esenciales (mínimo absoluto)
 BASE="xorg-minimal xinit libX11-devel libXft-devel libXinerama-devel"
 CORE="bspwm sxhkd polybar kitty rofi picom feh dunst"
-UTILS="git curl xtools scrot xdg-utils dbus acpi"
-EXTRA="font-firacode NetworkManager papirus-icon-theme"
+UTILS="git curl xtools scrot xdg-utils dbus acpi lightdm lightdm-gtk-greeter"
+EXTRA="font-firacode NetworkManager papirus-icon-theme bluez bluez-alsa"
 
 log "Instalando componentes esenciales..."
 sudo xbps-install -Sy $BASE $CORE $UTILS $EXTRA >/dev/null 2>&1
@@ -44,21 +44,39 @@ mkdir -p ~/.fonts
 mkdir -p ~/.local/bin
 mkdir -p ~/Pictures
 
-# Tema de colores principal - morado oscuro
-COLORS='{
-    "dark0":     "#1a1b26",
-    "dark1":     "#24283b",
-    "dark2":     "#414868",
-    "light0":    "#c0caf5",
-    "light1":    "#a9b1d6",
-    "light2":    "#9aa5ce",
-    "accent0":   "#7aa2f7",
-    "accent1":   "#bb9af7",
-    "accent2":   "#9d7cd8",
-    "accent3":   "#7dcfff",
-    "accent4":   "#2ac3de",
-    "accent5":   "#ff7a93"
-}'
+# Esquemas de colores - múltiples temas
+THEMES=(
+  "morado-oscuro:{
+    \"dark0\":\"#1a1b26\",\"dark1\":\"#24283b\",\"dark2\":\"#414868\",
+    \"light0\":\"#c0caf5\",\"light1\":\"#a9b1d6\",\"light2\":\"#9aa5ce\",
+    \"accent0\":\"#7aa2f7\",\"accent1\":\"#bb9af7\",\"accent2\":\"#9d7cd8\",
+    \"accent3\":\"#7dcfff\",\"accent4\":\"#2ac3de\",\"accent5\":\"#ff7a93\"
+  }"
+  
+  "morado-profundo:{
+    \"dark0\":\"#0f0f17\",\"dark1\":\"#1a1a2e\",\"dark2\":\"#16213e\",
+    \"light0\":\"#e4e4f0\",\"light1\":\"#c8c8d8\",\"light2\":\"#acacb8\",
+    \"accent0\":\"#7b68ee\",\"accent1\":\"#9370db\",\"accent2\":\"#800080\",
+    \"accent3\":\"#663399\",\"accent4\":\"#6a5acd\",\"accent5\":\"#c71585\"
+  }"
+  
+  "azul-morado:{
+    \"dark0\":\"#0f101a\",\"dark1\":\"#1e1e2e\",\"dark2\":\"#313244\",
+    \"light0\":\"#cdd6f4\",\"light1\":\"#bac2de\",\"light2\":\"#a6adc8\",
+    \"accent0\":\"#89b4fa\",\"accent1\":\"#cba6f7\",\"accent2\":\"#b4befe\",
+    \"accent3\":\"#74c7ec\",\"accent4\":\"#89dceb\",\"accent5\":\"#f38ba8\"
+  }"
+  
+  "verde-morado:{
+    \"dark0\":\"#0d1117\",\"dark1\":\"#161b22\",\"dark2\":\"#30363d\",
+    \"light0\":\"#e6edf3\",\"light1\":\"#c9d1d9\",\"light2\":\"#b1bac4\",
+    \"accent0\":\"#58a6ff\",\"accent1\":\"#a371f7\",\"accent2\":\"#6a5acd\",
+    \"accent3\":\"#39d353\",\"accent4\":\"#388bfd\",\"accent5\":\"#da3633\"
+  }"
+)
+
+# Tema por defecto
+COLORS=$(echo "${THEMES[0]}" | cut -d: -f2)
 
 # Extraer valores para usar en configs
 BG=$(echo $COLORS | jq -r '.dark0')
@@ -611,6 +629,8 @@ EOF
 log "Habilitando servicios..."
 sudo ln -sf /etc/sv/dbus /var/service/ 2>/dev/null
 sudo ln -sf /etc/sv/NetworkManager /var/service/ 2>/dev/null
+sudo ln -sf /etc/sv/bluetoothd /var/service/ 2>/dev/null
+sudo ln -sf /etc/sv/lightdm /var/service/ 2>/dev/null
 
 # Instalar fuentes de íconos para Rofi
 log "Instalando fuentes..."
@@ -645,23 +665,176 @@ notify-send "Tema" "Cambiado a modo \$THEME"
 EOF
 chmod +x ~/.local/bin/switch-theme
 
-# Crear archivo para ejecutar comandos al inicio
-cat > ~/.config/bspwm/autostart << EOF
+# Configuración del gestor de sesión LightDM
+log "Configurando gestor de sesión LightDM..."
+
+# Crear directorios para temas de LightDM
+sudo mkdir -p /usr/share/themes/PurpleTheme/lightdm-gtk-greeter/
+sudo mkdir -p /usr/share/backgrounds/
+
+# Generar fondo para LightDM
+cat > /tmp/generate-login-bg << EOF
 #!/bin/bash
-# Archivo para comandos al inicio
+convert -size 1920x1080 gradient:'#1a1b26-#24283b' -blur 0x8 /tmp/login-bg.jpg
 EOF
-chmod +x ~/.config/bspwm/autostart
+chmod +x /tmp/generate-login-bg
+/tmp/generate-login-bg
+sudo cp /tmp/login-bg.jpg /usr/share/backgrounds/login-bg.jpg
 
-echo -e "${C_PRP}=== Instalación completada ===${C_NC}"
-echo -e "${C_YLW}Inicio del sistema:${C_NC}"
-echo -e "1. Reinicia con ${C_GRN}sudo reboot${C_NC}"
-echo -e "2. Inicia sesión, ejecuta ${C_GRN}startx${C_NC}"
-echo -e "${C_YLW}Atajos:${C_NC}"
-echo -e "${C_GRN}Super + Enter${C_NC}: Terminal"
-echo -e "${C_GRN}Super + Space${C_NC}: Menú aplicaciones"
-echo -e "${C_GRN}Super + 1-5${C_NC}: Cambiar escritorio"
-echo -e "${C_GRN}Super + q${C_NC}: Cerrar ventana"
-echo -e "${C_GRN}Super + m${C_NC}: Alternar modo monocle"
+# Crear tema para LightDM-GTK-Greeter
+sudo cat > /etc/lightdm/lightdm-gtk-greeter.conf << EOF
+[greeter]
+theme-name = Adwaita-dark
+icon-theme-name = Papirus-Dark
+font-name = Fira Code 10
+background = /usr/share/backgrounds/login-bg.jpg
+position = 50%,center 50%,center
+clock-format = %H:%M:%S
+indicators = ~host;~spacer;~clock;~spacer;~session;~power
+user-background = false
+panel-position = top
+cursor-theme-name = Adwaita
+cursor-theme-size = 16
+EOF
 
-# Sugerencia final
-echo -e "\n${C_PRP}█ Para cambiar tema:${C_NC} ~/.local/bin/switch-theme [dark|light]"
+# Crear CSS para personalizar el aspecto del greeter
+sudo cat > /usr/share/themes/PurpleTheme/lightdm-gtk-greeter/greeter.css << EOF
+#panel_window {
+    background-color: rgba(26, 27, 38, 0.9);
+    border-bottom: 1px solid #9d7cd8;
+}
+
+#login_window {
+    border-radius: 10px;
+    border: 1px solid #9d7cd8;
+    background-color: rgba(36, 40, 59, 0.95);
+}
+
+#user_image {
+    border-radius: 50%;
+    border: 2px solid #bb9af7;
+}
+
+#user_image_border {
+    border-radius: 50%;
+    border: 2px solid #9d7cd8;
+    box-shadow: 0 0 10px #bb9af7;
+}
+
+#buttonbox_frame {
+    border-top: 1px solid rgba(157, 124, 216, 0.3);
+}
+
+#panel_window button,
+#panel_window button:active,
+#panel_window button:focus,
+#panel_window button:hover {
+    color: #c0caf5;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+#panel_window button:hover {
+    color: #bb9af7;
+}
+
+entry {
+    border-radius: 5px;
+    border: 1px solid #9d7cd8;
+    background-color: rgba(26, 27, 38, 0.8);
+    color: #c0caf5;
+}
+
+entry:focus {
+    border-color: #bb9af7;
+}
+
+button {
+    border-radius: 5px;
+    background-color: rgba(26, 27, 38, 0.8);
+    border: 1px solid #9d7cd8;
+    color: #c0caf5;
+}
+
+button:focus, button:hover {
+    background-color: #9d7cd8;
+    color: #1a1b26;
+}
+EOF
+
+# Actualizar configuración de LightDM
+sudo cat > /etc/lightdm/lightdm.conf << EOF
+[LightDM]
+greeter-session=lightdm-gtk-greeter
+EOF
+
+# Crear script para cambiar tema del sistema (incluyendo lightdm)
+cat > ~/.local/bin/change-theme << EOF
+#!/bin/bash
+
+# Nombres de los temas disponibles
+AVAILABLE_THEMES=("morado-oscuro" "morado-profundo" "azul-morado" "verde-morado")
+
+# Si no se pasa argumento, mostrar temas disponibles
+if [ -z "\$1" ]; then
+    echo "Temas disponibles:"
+    for i in "\${!AVAILABLE_THEMES[@]}"; do
+        echo "  \$i: \${AVAILABLE_THEMES[\$i]}"
+    done
+    echo "Uso: change-theme NÚMERO_TEMA"
+    exit 0
+fi
+
+# Verificar si el argumento es un número válido
+if ! [[ "\$1" =~ ^[0-9]+$ ]] || [ "\$1" -ge \${#AVAILABLE_THEMES[@]} ]; then
+    echo "Error: Índice de tema inválido"
+    exit 1
+fi
+
+SELECTED="\${AVAILABLE_THEMES[\$1]}"
+echo "Cambiando al tema: \$SELECTED"
+
+# Crear directorio para tema actual
+mkdir -p ~/.config/themes/current/
+
+# Extraer paleta de colores del tema seleccionado
+THEME_DATA=""
+for theme in "\${THEMES[@]}"; do
+    theme_name=\$(echo \$theme | cut -d: -f1)
+    if [ "\$theme_name" = "\$SELECTED" ]; then
+        THEME_DATA=\$(echo \$theme | cut -d: -f2)
+        break
+    fi
+done
+
+if [ -z "\$THEME_DATA" ]; then
+    echo "Error: No se pudo encontrar la paleta del tema"
+    exit 1
+fi
+
+# Guardar paleta para uso del sistema
+echo "\$THEME_DATA" > ~/.config/themes/current/palette.json
+
+# Extraer colores principales
+BG=\$(echo \$THEME_DATA | jq -r '.dark0')
+BG_ALT=\$(echo \$THEME_DATA | jq -r '.dark1')
+FG=\$(echo \$THEME_DATA | jq -r '.light0')
+ACCENT=\$(echo \$THEME_DATA | jq -r '.accent1')
+ACCENT_ALT=\$(echo \$THEME_DATA | jq -r '.accent2')
+
+# Actualizar tema Rofi
+cat > ~/.config/rofi/themes/current.rasi << EOROFI
+* {
+    bg: \$BG;
+    bg-alt: \$BG_ALT;
+    fg: \$FG;
+    accent: \$ACCENT;
+    accent-alt: \$ACCENT_ALT;
+    urgent: \$(echo \$THEME_DATA | jq -r '.accent5');
+}
+EOROFI
+ln -sf ~/.config/rofi/themes/current.rasi ~/.config/rofi/theme.rasi
+
+# Regenerar fondo de pantalla con nuevo tema
+convert -size 1920x1080 gradient:"\$BG-\$BG_ALT" -blur 0x8 ~/Pictures/wallpap
