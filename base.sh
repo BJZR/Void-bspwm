@@ -2,9 +2,6 @@
 sudo xbps-install -Sy xbps
 sudo xbps-install -Syu
 
-# Habilitar repositorios adicionales
-sudo xbps-install -Sy void-repo-nonfree void-repo-multilib void-multilib-nonfree
-
 # Herramientas de desarrollo
 sudo xbps-install -Sy base-devel ncurses-devel git
 
