@@ -1,18 +1,26 @@
 #!/bin/bash
 set -e
 
-echo "[+] Moviendo carpeta Imágenes a la raíz del usuario..."
+echo "[+] Preparando carpeta Imágenes en la raíz del usuario..."
 
 SRC_DIR="$(pwd)/Imágenes"
 DEST_DIR="$HOME/Imágenes"
 
-# Mover carpeta Imágenes si existe
-if [ -d "$SRC_DIR" ]; then
+# Verificar que la carpeta de origen exista
+if [ ! -d "$SRC_DIR" ]; then
+    echo "[✗] Carpeta Imágenes no encontrada en el directorio actual."
+    exit 1
+fi
+
+# Si la carpeta de destino ya existe, solo copiar contenido
+if [ -d "$DEST_DIR" ]; then
+    echo "[!] Carpeta Imágenes ya existe en $HOME. Copiando contenido..."
+    cp -r "$SRC_DIR/"* "$DEST_DIR/"
+    echo "[✓] Contenido copiado a $DEST_DIR"
+else
+    # Mover completamente si no existe
     mv "$SRC_DIR" "$DEST_DIR"
     echo "[✓] Carpeta Imágenes movida a $DEST_DIR"
-else
-    echo "[✗] Carpeta Imágenes no encontrada. Colócala en el mismo directorio que este script."
-    exit 1
 fi
 
 # Verificar wallpapers necesarios

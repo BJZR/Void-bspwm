@@ -11,7 +11,11 @@ sudo xbps-install -Sy xf86-video-intel
 sudo xbps-install -y xorg-minimal xinit xrandr \
     bspwm sxhkd kitty rofi polybar \
     curl wget neovim feh xbacklight xclip lxappearance \
-    scrot dunst
+    scrot dunst 
+
+#carpetas de inicio
+sudo xbps-install xdg-user-dirs
+xdg-user-dirs-update
 
 # Bluetooth
 sudo xbps-install -Sy bluez bluez-utils blueman

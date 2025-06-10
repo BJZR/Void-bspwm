@@ -30,6 +30,6 @@ run_script "base.sh"
 run_script "config.sh"
 run_script "FiraCode.sh"
 run_script "dracula.sh"
-#run_script "wallpaper.sh"
+run_script "wallpaper.sh"
 
 echo "===== ✅ Instalación completa sin errores. Reinicia tu equipo para aplicar los cambios. ====="
