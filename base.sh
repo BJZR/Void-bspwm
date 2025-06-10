@@ -1,5 +1,4 @@
 # Actualización del sistema base
-sudo xbps-install -Sy xbps
 sudo xbps-install -Syu
 
 # Herramientas de desarrollo
