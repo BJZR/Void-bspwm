@@ -9,7 +9,7 @@ sudo xbps-install -Sy xf86-video-intel
 
 # Entorno gráfico mínimo y utilidades esenciales
 sudo xbps-install -y xorg-minimal xinit xrandr \
-    bspwm sxhkd kitty rofi polybar \
+    bspwm sxhkd kitty rofi polybar xdo xprop \
     curl wget neovim feh xbacklight xclip lxappearance \
     scrot dunst 
 
@@ -18,11 +18,14 @@ sudo xbps-install xdg-user-dirs
 xdg-user-dirs-update
 
 # Bluetooth
-sudo xbps-install -Sy bluez bluez-utils blueman
+sudo xbps-install -Sy bluez bluez-utils blueman \
+     bluez-alsa
 sudo ln -s /etc/sv/bluetoothd /var/service
+
 
 # LightDM (gestor de inicio de sesión) y servicios relacionados
 sudo xbps-install -y lightdm lightdm-gtk-greeter dbus elogind polkit
+
 sudo ln -s /etc/sv/dbus /var/service
 sudo ln -s /etc/sv/lightdm /var/service
 
