@@ -12,4 +12,5 @@ done
 
 chmod +x ~/.config/polybar/launch.sh
 chmod +x ~/.config/slock/slock.sh
+chmod +x ~/.config/polybar/scripts/bluetooth.sh
 echo "[✓] Todos los scripts ahora tienen permisos de ejecución."
