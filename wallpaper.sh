@@ -15,7 +15,7 @@ else
     exit 1
 fi
 
-# Verificar wallpapers
+# Verificar wallpapers necesarios
 for img in wallpaper.jpg wallpaper1.jpg wallpaper2.jpg; do
     if [ ! -f "$DEST_DIR/$img" ]; then
         echo "[✗] Falta la imagen $img en $DEST_DIR"
@@ -25,7 +25,11 @@ done
 
 # Establecer fondo con feh
 echo "[+] Aplicando fondo de escritorio con feh..."
-command -v feh >/dev/null || { echo "[✗] 'feh' no está instalado."; exit 1; }
+if ! command -v feh >/dev/null; then
+    echo "[✗] 'feh' no está instalado. Instálalo antes de continuar."
+    exit 1
+fi
+
 feh --bg-scale "$DEST_DIR/wallpaper.jpg"
 
 # Configurar LightDM
@@ -34,7 +38,7 @@ LIGHTDM_CONF="/etc/lightdm/lightdm-gtk-greeter.conf"
 
 sudo mkdir -p "$(dirname "$LIGHTDM_CONF")"
 
-sudo bash -c "cat > $LIGHTDM_CONF" <<EOF
+sudo tee "$LIGHTDM_CONF" > /dev/null <<EOF
 [greeter]
 background=$DEST_DIR/wallpaper1.jpg
 theme-name=Dracula
@@ -45,5 +49,4 @@ xft-hintstyle=hintfull
 EOF
 
 echo "[✓] LightDM configurado con tema Dracula y fondo personalizado."
-
 echo "[✓] Todo listo con tema Dracula y wallpapers aplicados correctamente."

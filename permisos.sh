@@ -9,7 +9,7 @@ find . -type f -name "*.sh" | while read -r script; do
     echo "[✓] Permiso de ejecución añadido: $script"
 done
 
-cd ~
+
 chmod +x ~/.config/polybar/launch.sh
 chmod +x ~/.config/slock/slock.sh
 echo "[✓] Todos los scripts ahora tienen permisos de ejecución."
