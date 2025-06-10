@@ -1,32 +1,34 @@
-#!/bin/bash
+# Actualización del sistema base
+sudo xbps-install -Sy xbps
+sudo xbps-install -Syu
 
-xbps-install -Sy xbps
-sudo xbps-install -syu
+# Habilitar repositorios adicionales
+sudo xbps-install -Sy void-repo-nonfree void-repo-multilib void-multilib-nonfree
 
-xbps-install void-repo-nonfree void-repo-multilib
+# Herramientas de desarrollo
+sudo xbps-install -Sy base-devel ncurses-devel git
 
-sudo xbps-install -S base-devel ncurses-devel
+# Drivers gráficos (Intel en este caso)
+sudo xbps-install -Sy xf86-video-intel
 
-sudo xbps-install -S xf86-video-intel
+# Entorno gráfico mínimo y utilidades esenciales
+sudo xbps-install -y xorg-minimal xinit xrandr \
+    bspwm sxhkd kitty rofi polybar \
+    curl wget neovim feh xbacklight xclip lxappearance \
+    scrot dunst
 
-sudo xbps-install -y xorg-minimal xinit xrandr bspwm sxhkd kitty rofi polybar git curl wget neovim feh xbacklight xclip lxappearance scrot dunst
-
-
-sudo xbps-install -S bluez bluez-utils
-
-sudo xbps-install blueman
-
+# Bluetooth
+sudo xbps-install -Sy bluez bluez-utils blueman
 sudo ln -s /etc/sv/bluetoothd /var/service
 
+# LightDM (gestor de inicio de sesión) y servicios relacionados
 sudo xbps-install -y lightdm lightdm-gtk-greeter dbus elogind polkit
+sudo ln -s /etc/sv/dbus /var/service
+sudo ln -s /etc/sv/lightdm /var/service
 
-sudo ln -s /etc/sv/dbus /var/service/
+# Audio (PulseAudio + soporte Bluetooth)
+sudo xbps-install -Sy pulseaudio pulseaudio-bluetooth pavucontrol
 
-sudo ln -s /etc/sv/lightdm /var/service/
-
-sudo xbps-install -S pulseaudio pulseaudio-bluetooth pavucontrol
-
-sudo xbps-install -S NetworkManager network-manager-applet
-
-sudo ln -s /etc/sv/NetworkManager /var/service/
-
+# Red (NetworkManager)
+sudo xbps-install -Sy NetworkManager network-manager-applet
+sudo ln -s /etc/sv/NetworkManager /var/service
