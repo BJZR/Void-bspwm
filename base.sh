@@ -1,49 +1,32 @@
 #!/bin/bash
-set -e  # Salir si ocurre un error
 
-# Función para crear symlinks si no existen
-enable_service() {
-    local svc="/etc/sv/$1"
-    local link="/var/service/$1"
-    [ ! -e "$link" ] && ln -s "$svc" "$link"
-}
-
-echo "[+] Sincronizando repositorios y actualizando sistema..."
 xbps-install -Sy xbps
-xbps-install -Syu
+sudo xbps-install -syu
 
-echo "[+] Activando repositorios nonfree y multilib..."
-xbps-install -y void-repo-nonfree void-repo-multilib void-multilib-nonfree
-xbps-install -Syu
+xbps-install void-repo-nonfree void-repo-multilib
 
-echo "[+] Instalando herramientas de desarrollo y utilidades..."
-xbps-install -y base-devel ncurses-devel git curl wget neovim
+sudo xbps-install -S base-devel ncurses-devel
 
-echo "[+] Instalando controlador de video Intel..."
-xbps-install -y xf86-video-intel
+sudo xbps-install -S xf86-video-intel
 
-echo "[+] Instalando entorno BSPWM y herramientas esenciales..."
-xbps-install -y xorg-minimal xinit xrandr bspwm sxhkd kitty rofi polybar \
-               feh xbacklight xclip lxappearance scrot dunst slock picom
+sudo xbps-install -y xorg-minimal xinit xrandr bspwm sxhkd kitty rofi polybar git curl wget neovim feh xbacklight xclip lxappearance scrot dunst
 
-echo "[+] Instalando Bluetooth y gestor Blueman..."
-xbps-install -y bluez bluez-utils blueman
-enable_service bluetoothd
 
-echo "[+] Instalando LightDM y servicios de sesión..."
-xbps-install -y lightdm lightdm-gtk-greeter dbus elogind polkit
-enable_service dbus
-enable_service lightdm
+sudo xbps-install -S bluez bluez-utils
 
-echo "[+] Instalando audio y herramientas PulseAudio..."
-xbps-install -y pulseaudio pulseaudio-bluetooth pavucontrol
+sudo xbps-install blueman
 
-echo "[+] Instalando NetworkManager..."
-xbps-install -y NetworkManager network-manager-applet
-enable_service NetworkManager
+sudo ln -s /etc/sv/bluetoothd /var/service
 
-echo "[+] Instalando de carpetas principales..."
-xbps-install -y xdg-user-dirs
-xdg-user-dirs-update
+sudo xbps-install -y lightdm lightdm-gtk-greeter dbus elogind polkit
 
-echo "[✓] Instalación completa. Reinicia para aplicar los cambios."
+sudo ln -s /etc/sv/dbus /var/service/
+
+sudo ln -s /etc/sv/lightdm /var/service/
+
+sudo xbps-install -S pulseaudio pulseaudio-bluetooth pavucontrol
+
+sudo xbps-install -S NetworkManager network-manager-applet
+
+sudo ln -s /etc/sv/NetworkManager /var/service/
+
