@@ -40,21 +40,20 @@ fi
 
 feh --bg-scale "$DEST_DIR/wallpaper.jpg"
 
-# Configurar LightDM
-echo "[+] Configurando fondo de LightDM..."
-LIGHTDM_CONF="/etc/lightdm/lightdm-gtk-greeter.conf"
+# Configurar SLiM
+echo "[+] Configurando fondo de SLiM..."
+SLIM_CONF="/etc/slim.conf"
 
-sudo mkdir -p "$(dirname "$LIGHTDM_CONF")"
+if [ ! -f "$SLIM_CONF" ]; then
+    echo "[✗] Archivo slim.conf no encontrado en /etc. ¿Está instalado SLiM?"
+    exit 1
+fi
 
-sudo tee "$LIGHTDM_CONF" > /dev/null <<EOF
-[greeter]
-background=$DEST_DIR/wallpaper1.jpg
-theme-name=Dracula
-icon-theme-name=Dracula
-font-name=Fira Code 10
-xft-antialias=true
-xft-hintstyle=hintfull
-EOF
+# Cambiar la línea del background en slim.conf
+sudo sed -i "s|^current_theme.*|current_theme default|" "$SLIM_CONF"
 
-echo "[✓] LightDM configurado con tema Dracula y fondo personalizado."
-echo "[✓] Todo listo con tema Dracula y wallpapers aplicados correctamente."
+# Asegurar ruta de fondo
+sudo sed -i "s|^#*background.*|background $DEST_DIR/wallpaper1.jpg|" "$SLIM_CONF"
+
+echo "[✓] SLiM configurado con fondo personalizado."
+echo "[✓] Todo listo con tema Dracula (manual) y wallpapers aplicados correctamente."

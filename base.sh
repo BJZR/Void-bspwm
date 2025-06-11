@@ -5,29 +5,29 @@ sudo xbps-install -Syu
 sudo xbps-install -Sy base-devel ncurses-devel git
 
 # Drivers gráficos (Intel en este caso)
-sudo xbps-install -Sy xf86-video-intel
+sudo xbps-install -Sy xf86-video-intel mesa-dri
 
 # Entorno gráfico mínimo y utilidades esenciales
 sudo xbps-install -y xorg-minimal xinit xrandr \
     bspwm sxhkd kitty rofi polybar xdo xprop \
     curl wget neovim feh xbacklight xclip lxappearance \
-    scrot dunst 
+    scrot dunst slock qutebrowser
 
 #carpetas de inicio
 sudo xbps-install xdg-user-dirs
 xdg-user-dirs-update
 
 # Bluetooth
-sudo xbps-install -Sy bluez bluez-utils blueman \
+sudo xbps-install -Sy bluez blueman \
      bluez-alsa
 sudo ln -s /etc/sv/bluetoothd /var/service
 
 
 # LightDM (gestor de inicio de sesión) y servicios relacionados
-sudo xbps-install -y lightdm lightdm-gtk-greeter dbus elogind polkit
+sudo xbps-install -y slim dbus elogind polkit
 
 sudo ln -s /etc/sv/dbus /var/service
-sudo ln -s /etc/sv/lightdm /var/service
+sudo ln -s /etc/sv/slim /var/service
 
 # Audio (PulseAudio + soporte Bluetooth)
 sudo xbps-install -Sy pulseaudio pulseaudio-bluetooth pavucontrol
