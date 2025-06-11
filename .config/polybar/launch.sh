@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Cierra cualquier instancia previa de Polybar
-killall -q polybar
+# Terminar instancias previas
+pkill polybar
 
-# Espera a que se cierren
-while pgrep -x polybar >/dev/null; do sleep 1; done
+# Esperar a que termine
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 
-# Inicia Polybar con el nombre de la barra configurada en config.ini (por ejemplo: mybar)
-polybar &
+# Iniciar la barra
+polybar bspwm &
