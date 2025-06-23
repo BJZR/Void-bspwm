@@ -31,7 +31,7 @@ for img in wallpaper.jpg wallpaper1.jpg wallpaper2.jpg; do
     fi
 done
 
-# Establecer fondo con feh
+# Establecer fondo de escritorio con feh
 echo "[+] Aplicando fondo de escritorio con feh..."
 if ! command -v feh >/dev/null; then
     echo "[✗] 'feh' no está instalado. Instálalo antes de continuar."
@@ -40,20 +40,19 @@ fi
 
 feh --bg-scale "$DEST_DIR/wallpaper.jpg"
 
-# Configurar SLiM
-echo "[+] Configurando fondo de SLiM..."
-SLIM_CONF="/etc/slim.conf"
+# Configurar LightDM GTK Greeter
+echo "[+] Configurando fondo de LightDM (gtk-greeter)..."
 
-if [ ! -f "$SLIM_CONF" ]; then
-    echo "[✗] Archivo slim.conf no encontrado en /etc. ¿Está instalado SLiM?"
+LIGHTDM_CONF="/etc/lightdm/lightdm-gtk-greeter.conf"
+
+if [ ! -f "$LIGHTDM_CONF" ]; then
+    echo "[✗] Archivo lightdm-gtk-greeter.conf no encontrado."
+    echo "    ¿Tienes instalado 'lightdm-gtk-greeter'?"
     exit 1
 fi
 
-# Cambiar la línea del background en slim.conf
-sudo sed -i "s|^current_theme.*|current_theme default|" "$SLIM_CONF"
+# Cambiar fondo en lightdm-gtk-greeter.conf
+sudo sed -i "s|^#*background=.*|background=$DEST_DIR/wallpaper1.jpg|" "$LIGHTDM_CONF"
 
-# Asegurar ruta de fondo
-sudo sed -i "s|^#*background.*|background $DEST_DIR/wallpaper1.jpg|" "$SLIM_CONF"
-
-echo "[✓] SLiM configurado con fondo personalizado."
-echo "[✓] Todo listo con tema Dracula (manual) y wallpapers aplicados correctamente."
+echo "[✓] LightDM (gtk-greeter) configurado con fondo personalizado."
+echo "[✓] Todo listo con wallpapers aplicados correctamente."

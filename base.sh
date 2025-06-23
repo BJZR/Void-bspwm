@@ -8,7 +8,7 @@ sudo xbps-install -Sy base-devel ncurses-devel git
 sudo xbps-install -Sy xf86-video-intel mesa-dri
 
 # Entorno gráfico mínimo y utilidades esenciales
-sudo xbps-install -y xorg-minimal xinit xrandr \
+sudo xbps-install -y xorg xinit xrandr \
     bspwm sxhkd kitty rofi polybar xdo xprop \
     curl wget neovim feh xbacklight xclip lxappearance \
     scrot dunst slock qutebrowser
@@ -24,10 +24,10 @@ sudo ln -s /etc/sv/bluetoothd /var/service
 
 
 # LightDM (gestor de inicio de sesión) y servicios relacionados
-sudo xbps-install -y slim dbus elogind polkit
+sudo xbps-install -y lightdm dbus elogind polkit
 
 sudo ln -s /etc/sv/dbus /var/service
-sudo ln -s /etc/sv/slim /var/service
+sudo ln -s /etc/sv/lightdm /var/service
 
 # Audio (PulseAudio + soporte Bluetooth)
 sudo xbps-install -Sy pulseaudio pulseaudio-bluetooth pavucontrol
