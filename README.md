@@ -23,6 +23,7 @@ Para instalar este entorno en Void Linux (versión base), sigue estos pasos:
 
    ```bash
    chmod +x permisos.sh
+   ./permisos.sh
    ```
 
 4. **Ejecuta el script**
