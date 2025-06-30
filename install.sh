@@ -31,10 +31,6 @@ run_script "config.sh"
 run_script "FiraCode.sh"
 run_script "dracula.sh"
 run_script "wallpaper.sh"
-cd ~
-chmod +x ~/.config/bspwm/bspwmrc
-chmod +x ~/.config/sxhkd/sxhkdrc
-chmod +x ~/.config/polybar/launch.sh
-chmod +x ~/.config/slock/slock.sh
-chmod +x ~/.config/polybar/scripts/bluetooth.sh
+run_script "funcional.sh"
+
 echo "===== ✅ Instalación completa sin errores. Reinicia tu equipo para aplicar los cambios. ====="
