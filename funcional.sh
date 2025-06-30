@@ -1,3 +1,4 @@
+#permisos para el buen funcionamiento...
 cd ~
 chmod +x ~/.config/bspwm/bspwmrc
 chmod +x ~/.config/sxhkd/sxhkdrc
