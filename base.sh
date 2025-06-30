@@ -18,8 +18,9 @@ sudo xbps-install xdg-user-dirs
 xdg-user-dirs-update
 
 # Bluetooth
+sudo usermod -aG bluetooth "$USER"
 sudo xbps-install -Sy bluez blueman \
-     bluez-alsa
+     bluez-alsa libspa-bluetooth
 sudo ln -s /etc/sv/bluetoothd /var/service
 
 
@@ -28,6 +29,9 @@ sudo xbps-install -y lightdm dbus elogind polkit
 
 sudo ln -s /etc/sv/dbus /var/service
 sudo ln -s /etc/sv/lightdm /var/service
+sudo ln -s /etc/sv/elogind /var/service
+sudo ln -s /etc/sv/polkitd /var/service
+
 
 # Audio (PulseAudio + soporte Bluetooth)
 sudo xbps-install -Sy pulseaudio pulseaudio-bluetooth pavucontrol
